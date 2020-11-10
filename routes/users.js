@@ -1,9 +1,21 @@
-const express = require('express');
+const express = require('express')
+const router = express.Router()
 
-const router = express.Router();
+const User = require('../models/User')
 
-router.post('/', (req,res) => {
-    res.send('Register a user')
-});
+// @route     POST api/users
+// @desc      Register a user
+// @access    Public
+router.post('/', async (req, res) => {
+  const user = new User(req.body)
 
-module.exports =router;
+  try {
+    await user.save()
+    const token = await user.generateAuthToken()
+    res.status(201).send({ token })
+  } catch (e) {
+    res.status(400).send({ error: e.message })
+  }
+})
+
+module.exports = router
